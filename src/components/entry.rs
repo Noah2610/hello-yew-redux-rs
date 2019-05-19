@@ -6,7 +6,7 @@ use crate::yew_prelude::*;
 #[derive(Default)]
 pub struct Entry {
     data:      EntryData,
-    on_toggle: Option<Callback<EntryId>>,
+    on_update: Option<Callback<EntryData>>,
 }
 
 pub enum Msg {
@@ -16,7 +16,7 @@ pub enum Msg {
 #[derive(Default, Clone, PartialEq)]
 pub struct Props {
     pub data:      EntryData,
-    pub on_toggle: Option<Callback<EntryId>>,
+    pub on_update: Option<Callback<EntryData>>,
 }
 
 impl Component for Entry {
@@ -24,10 +24,10 @@ impl Component for Entry {
     type Properties = Props;
 
     fn create(
-        Props { data, on_toggle }: Self::Properties,
+        Props { data, on_update }: Self::Properties,
         _: ComponentLink<Self>,
     ) -> Self {
-        Self { data, on_toggle }
+        Self { data, on_update }
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
@@ -42,9 +42,9 @@ impl Component for Entry {
         match msg {
             Msg::Toggle => {
                 self.data.completed = !self.data.completed;
-                self.on_toggle
+                self.on_update
                     .as_ref()
-                    .map(|callback| callback.emit(self.data.id));
+                    .map(|callback| callback.emit(self.data.clone()));
                 true
             }
         }

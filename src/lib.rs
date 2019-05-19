@@ -30,7 +30,7 @@ pub fn consolelog<T: ToString>(msg: T) {
 pub enum Msg {
     InputNewTodo(String),
     AddNewTodo,
-    ToggleEntryComplete(EntryId),
+    UpdateEntry(EntryData),
     Noop,
 }
 
@@ -68,11 +68,11 @@ impl Component for Model {
                 });
                 true
             }
-            Msg::ToggleEntryComplete(id) => {
+            Msg::UpdateEntry(data) => {
                 if let Some(entry) =
-                    self.entries.iter_mut().find(|entry| id == entry.id)
+                    self.entries.iter_mut().find(|entry| data.id == entry.id)
                 {
-                    entry.completed = !entry.completed;
+                    *entry = data;
                     true
                 } else {
                     false
@@ -99,9 +99,9 @@ impl Renderable<Self> for Model {
 
 impl Model {
     fn view_entry_list(&self) -> Html<Self> {
-        let on_entry_toggle = |entry_id| Msg::ToggleEntryComplete(entry_id);
+        let on_entry_toggle = |data| Msg::UpdateEntry(data);
         html! {
-            <EntryList: entries=&self.entries, on_entry_toggle=on_entry_toggle, />
+            <EntryList: entries=&self.entries, on_entry_update=on_entry_toggle, />
         }
     }
 

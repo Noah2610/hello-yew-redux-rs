@@ -7,7 +7,7 @@ use crate::entry_data::prelude::*;
 
 pub struct EntryList {
     entries:         Vec<EntryData>,
-    on_entry_toggle: Option<Callback<EntryId>>,
+    on_entry_update: Option<Callback<EntryData>>,
 }
 
 pub enum Msg {}
@@ -15,7 +15,7 @@ pub enum Msg {}
 #[derive(Default, Clone, PartialEq)]
 pub struct Props {
     pub entries:         Vec<EntryData>,
-    pub on_entry_toggle: Option<Callback<EntryId>>,
+    pub on_entry_update: Option<Callback<EntryData>>,
 }
 
 impl Component for EntryList {
@@ -25,13 +25,13 @@ impl Component for EntryList {
     fn create(
         Props {
             entries,
-            on_entry_toggle,
+            on_entry_update,
         }: Self::Properties,
         _: ComponentLink<Self>,
     ) -> Self {
         Self {
             entries,
-            on_entry_toggle,
+            on_entry_update,
         }
     }
 
@@ -63,7 +63,7 @@ impl Renderable<Self> for EntryList {
 impl EntryList {
     fn view_entry(&self, entry: &EntryData) -> Html<Self> {
         html! {
-            <Entry: data=entry, on_toggle=self.on_entry_toggle.clone(), />
+            <Entry: data=entry, on_update=self.on_entry_update.clone(), />
         }
     }
 }
