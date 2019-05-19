@@ -1,3 +1,4 @@
+extern crate redux_rs;
 extern crate yew;
 
 mod yew_prelude {
@@ -15,12 +16,22 @@ mod yew_prelude {
 
 mod components;
 mod entry_data;
+mod store;
+
+use std::sync::mpsc::Sender;
 
 use yew::services::ConsoleService;
 
 use components::prelude::*;
 use entry_data::prelude::*;
+use store::prelude::*;
 use yew_prelude::*;
+
+/// Entry point
+pub fn run() {
+    /// Start root model
+    yew::start_app::<Model>();
+}
 
 /// Debug function; print to JS console
 pub fn consolelog<T: ToString>(msg: T) {
@@ -35,8 +46,8 @@ pub enum Msg {
 }
 
 /// Root component
-#[derive(Default)]
 pub struct Model {
+    store_handle:   StoreHandle,
     console:        ConsoleService,
     entries:        Vec<EntryData>,
     input_new_todo: String,
@@ -47,10 +58,27 @@ impl Component for Model {
     type Properties = ();
 
     fn create(_: Self::Properties, _: ComponentLink<Self>) -> Self {
+        /// Initialize redux store
+        let store_handle = store::initialize_store();
+        /// Create actual root component
         Self {
-            entries: Vec::new(),
-            ..Default::default()
+            store_handle:   store_handle,
+            console:        ConsoleService::new(),
+            entries:        Vec::new(),
+            input_new_todo: String::new(),
         }
+    }
+
+    fn destroy(&mut self) {
+        // Wait for any processes to finish on the `StoreHandle`
+        // TODO: This doesn't work, because `join` takes ownership of the thread,
+        //       which we do not own in this scope (we only mutably borrow `self`).
+        // if let Err(err) = &self.store_handle.thread.join() {
+        //     panic!(format!(
+        //         "`StoreHandle`'s thread did not shutdown successfully: {:?}",
+        //         err
+        //     ));
+        // }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {

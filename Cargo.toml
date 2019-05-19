@@ -5,4 +5,5 @@ authors = ["Noah Rosenzweig <rosenzweig.noah@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-yew = "0.6.0"
+yew      = "0.6.0"
+redux-rs = "0.1.0"
