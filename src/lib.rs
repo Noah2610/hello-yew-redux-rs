@@ -66,6 +66,7 @@ impl Component for Model {
                     name: self.input_new_todo.clone(),
                     ..Default::default()
                 });
+                self.input_new_todo = String::new();
                 true
             }
             Msg::UpdateEntry(data) => {
