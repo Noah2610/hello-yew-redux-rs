@@ -4,6 +4,7 @@ use crate::yew_prelude::*;
 
 use super::prelude::{Entry, EntryProps};
 use crate::entry_data::prelude::*;
+use crate::store::StoreHandle;
 
 pub struct EntryList {
     entries:         Vec<EntryData>,
@@ -14,8 +15,9 @@ pub enum Msg {}
 
 #[derive(Default, Clone, PartialEq)]
 pub struct Props {
-    pub entries:         Vec<EntryData>,
-    pub on_entry_update: Option<Callback<EntryData>>,
+    pub store: &'a StoreHandle,
+    // pub entries:         Vec<EntryData>,
+    // pub on_entry_update: Option<Callback<EntryData>>,
 }
 
 impl Component for EntryList {

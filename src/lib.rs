@@ -1,4 +1,5 @@
 extern crate redux_rs;
+extern crate shred;
 extern crate yew;
 
 mod yew_prelude {
@@ -49,7 +50,6 @@ pub enum Msg {
 pub struct Model {
     store_handle:   StoreHandle,
     console:        ConsoleService,
-    entries:        Vec<EntryData>,
     input_new_todo: String,
 }
 
@@ -64,21 +64,8 @@ impl Component for Model {
         Self {
             store_handle:   store_handle,
             console:        ConsoleService::new(),
-            entries:        Vec::new(),
             input_new_todo: String::new(),
         }
-    }
-
-    fn destroy(&mut self) {
-        // Wait for any processes to finish on the `StoreHandle`
-        // TODO: This doesn't work, because `join` takes ownership of the thread,
-        //       which we do not own in this scope (we only mutably borrow `self`).
-        // if let Err(err) = &self.store_handle.thread.join() {
-        //     panic!(format!(
-        //         "`StoreHandle`'s thread did not shutdown successfully: {:?}",
-        //         err
-        //     ));
-        // }
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
@@ -89,23 +76,28 @@ impl Component for Model {
                 changed
             }
             Msg::AddNewTodo => {
-                self.entries.push(EntryData {
-                    id: self.entries.len(),
-                    name: self.input_new_todo.clone(),
-                    ..Default::default()
-                });
+                self.store_handle.store.dispatch(Action::AddEntryWithName(
+                    self.input_new_todo.clone(),
+                ));
+                // self.entries.push(EntryData {
+                //     id: self.entries.len(),
+                //     name: self.input_new_todo.clone(),
+                //     ..Default::default()
+                // });
                 self.input_new_todo = String::new();
                 true
             }
             Msg::UpdateEntry(data) => {
-                if let Some(entry) =
-                    self.entries.iter_mut().find(|entry| data.id == entry.id)
-                {
-                    *entry = data;
-                    true
-                } else {
-                    false
-                }
+                false
+                // TODO
+                // if let Some(entry) =
+                //     self.entries.iter_mut().find(|entry| data.id == entry.id)
+                // {
+                //     *entry = data;
+                //     true
+                // } else {
+                //     false
+                // }
             }
             Msg::Noop => false,
         }
@@ -128,9 +120,8 @@ impl Renderable<Self> for Model {
 
 impl Model {
     fn view_entry_list(&self) -> Html<Self> {
-        let on_entry_toggle = |data| Msg::UpdateEntry(data);
         html! {
-            <EntryList: entries=&self.entries, on_entry_update=on_entry_toggle, />
+            <EntryList: store=self.store_handle.store, />
         }
     }
 
