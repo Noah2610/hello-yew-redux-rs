@@ -1,13 +1,12 @@
 //! A single Todo entry item
 
+use crate::entry_data::prelude::*;
 use crate::yew_prelude::*;
-use crate::EntryData;
 
 #[derive(Default)]
 pub struct Entry {
-    id:        usize,
-    name:      String,
-    completed: bool,
+    data:      EntryData,
+    on_toggle: Option<Callback<EntryId>>,
 }
 
 pub enum Msg {
@@ -16,33 +15,36 @@ pub enum Msg {
 
 #[derive(Default, Clone, PartialEq)]
 pub struct Props {
-    pub entry: EntryData,
+    pub data:      EntryData,
+    pub on_toggle: Option<Callback<EntryId>>,
 }
 
 impl Component for Entry {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
-        Self {
-            id:        props.entry.id,
-            name:      props.entry.name,
-            completed: props.entry.completed,
-        }
+    fn create(
+        Props { data, on_toggle }: Self::Properties,
+        _: ComponentLink<Self>,
+    ) -> Self {
+        Self { data, on_toggle }
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
-        self.id = props.entry.id;
-        self.name = props.entry.name;
-        self.completed = props.entry.completed;
-        true
+        let changed = self.data != props.data;
+        if changed {
+            self.data = props.data;
+        }
+        changed
     }
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
             Msg::Toggle => {
-                // TODO
-                self.completed = !self.completed;
+                self.data.completed = !self.data.completed;
+                self.on_toggle
+                    .as_ref()
+                    .map(|callback| callback.emit(self.data.id));
                 true
             }
         }
@@ -52,14 +54,14 @@ impl Component for Entry {
 impl Renderable<Self> for Entry {
     fn view(&self) -> Html<Self> {
         let mut class = "todo".to_string();
-        if self.completed {
+        if self.data.completed {
             class.push_str(" completed");
         }
         html! {
             <li class=class,>
                 <input class="toggle", type="checkbox", />
-                <label>{ &self.name }</label>
-                <button class="destroy", checked=self.completed, onclick=|_| Msg::Toggle, />
+                <label>{ &self.data.name }</label>
+                <button class="destroy", checked=self.data.completed, onclick=|_| Msg::Toggle, />
             </li>
         }
     }

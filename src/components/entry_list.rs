@@ -3,33 +3,43 @@
 use crate::yew_prelude::*;
 
 use super::prelude::{Entry, EntryProps};
-use crate::EntryData;
+use crate::entry_data::prelude::*;
 
-#[derive(Default)]
 pub struct EntryList {
-    entries: Vec<EntryData>,
+    entries:         Vec<EntryData>,
+    on_entry_toggle: Option<Callback<EntryId>>,
 }
 
 pub enum Msg {}
 
 #[derive(Default, Clone, PartialEq)]
 pub struct Props {
-    pub entries: Vec<EntryData>,
+    pub entries:         Vec<EntryData>,
+    pub on_entry_toggle: Option<Callback<EntryId>>,
 }
 
 impl Component for EntryList {
     type Message = Msg;
     type Properties = Props;
 
-    fn create(props: Self::Properties, _: ComponentLink<Self>) -> Self {
+    fn create(
+        Props {
+            entries,
+            on_entry_toggle,
+        }: Self::Properties,
+        _: ComponentLink<Self>,
+    ) -> Self {
         Self {
-            entries: props.entries,
+            entries,
+            on_entry_toggle,
         }
     }
 
     fn change(&mut self, props: Self::Properties) -> ShouldRender {
         let changed = self.entries != props.entries;
-        self.entries = props.entries;
+        if changed {
+            self.entries = props.entries;
+        }
         changed
     }
 
@@ -53,7 +63,7 @@ impl Renderable<Self> for EntryList {
 impl EntryList {
     fn view_entry(&self, entry: &EntryData) -> Html<Self> {
         html! {
-            <Entry: entry=entry, />
+            <Entry: data=entry, on_toggle=self.on_entry_toggle.clone(), />
         }
     }
 }

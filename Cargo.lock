@@ -106,7 +106,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 name = "hello_yew"
 version = "0.1.0"
 dependencies = [
- "yew 0.7.0 (git+https://github.com/DenisKolodin/yew)",
+ "yew 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -361,8 +361,8 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 
 [[package]]
 name = "yew"
-version = "0.7.0"
-source = "git+https://github.com/DenisKolodin/yew#0f4ca7934346460784b8a1a2eeabf9e43c7f11e5"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
 dependencies = [
  "anymap 0.12.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "bincode 1.0.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -423,4 +423,4 @@ dependencies = [
 "checksum wasm-bindgen-macro-support 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)" = "cc4b5cb4ac8bf9c516016f7f12b0b8fbcaf16c6a983bf438738ba165055c2b7b"
 "checksum wasm-bindgen-shared 0.2.44 (registry+https://github.com/rust-lang/crates.io-index)" = "5617f78ef6ffc25f1e34130a9581cdd0d54b90000a9e8ac1e28a1cdc16ca65b3"
 "checksum winapi 0.2.8 (registry+https://github.com/rust-lang/crates.io-index)" = "167dc9d6949a9b857f3451275e911c3f44255842c1f7a76f33c55103a909087a"
-"checksum yew 0.7.0 (git+https://github.com/DenisKolodin/yew)" = "<none>"
+"checksum yew 0.6.0 (registry+https://github.com/rust-lang/crates.io-index)" = "ca078a19e3459f7d73b135015477bc8cdcc92c3f4a058ae949f4d957a47dfd55"

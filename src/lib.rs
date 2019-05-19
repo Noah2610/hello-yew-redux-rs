@@ -3,6 +3,7 @@ extern crate yew;
 mod yew_prelude {
     pub use yew::{
         html,
+        Callback,
         Component,
         ComponentLink,
         Html,
@@ -18,7 +19,7 @@ mod entry_data;
 use yew::services::ConsoleService;
 
 use components::prelude::*;
-pub use entry_data::EntryData;
+use entry_data::prelude::*;
 use yew_prelude::*;
 
 /// Debug function; print to JS console
@@ -27,8 +28,9 @@ pub fn consolelog<T: ToString>(msg: T) {
 }
 
 pub enum Msg {
-    UpdateInputNewTodo(String),
-    NewTodo,
+    InputNewTodo(String),
+    AddNewTodo,
+    ToggleEntryComplete(EntryId),
     Noop,
 }
 
@@ -53,18 +55,28 @@ impl Component for Model {
 
     fn update(&mut self, msg: Self::Message) -> ShouldRender {
         match msg {
-            Msg::UpdateInputNewTodo(input) => {
+            Msg::InputNewTodo(input) => {
                 let changed = self.input_new_todo != input;
                 self.input_new_todo = input;
                 changed
             }
-            Msg::NewTodo => {
+            Msg::AddNewTodo => {
                 self.entries.push(EntryData {
                     id: self.entries.len(),
                     name: self.input_new_todo.clone(),
                     ..Default::default()
                 });
                 true
+            }
+            Msg::ToggleEntryComplete(id) => {
+                if let Some(entry) =
+                    self.entries.iter_mut().find(|entry| id == entry.id)
+                {
+                    entry.completed = !entry.completed;
+                    true
+                } else {
+                    false
+                }
             }
             Msg::Noop => false,
         }
@@ -79,21 +91,28 @@ impl Renderable<Self> for Model {
                     <h1>{ "Todos..." }</h1>
                     { self.view_create_entry() }
                 </header>
-                <EntryList: entries=&self.entries, />
+                { self.view_entry_list() }
             </div>
         }
     }
 }
 
 impl Model {
+    fn view_entry_list(&self) -> Html<Self> {
+        let on_entry_toggle = |entry_id| Msg::ToggleEntryComplete(entry_id);
+        html! {
+            <EntryList: entries=&self.entries, on_entry_toggle=on_entry_toggle, />
+        }
+    }
+
     fn view_create_entry(&self) -> Html<Self> {
         html! {
             <input
                 type="text",
                 class="new-todo",
                 value=&self.input_new_todo,
-                oninput=|e| Msg::UpdateInputNewTodo(e.value),
-                onkeypress=|e| if e.key() == "Enter" { Msg::NewTodo } else { Msg::Noop }, />
+                oninput=|e| Msg::InputNewTodo(e.value),
+                onkeypress=|e| if e.key() == "Enter" { Msg::AddNewTodo } else { Msg::Noop }, />
         }
     }
 }
