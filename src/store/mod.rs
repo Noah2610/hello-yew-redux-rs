@@ -17,9 +17,11 @@ use redux_rs::Store;
 use crate::entry_data::prelude::*;
 use state::prelude::*;
 
-#[derive(Default, Clone, PartialEq)]
 pub struct StoreHandle {
-    pub store: Store<State, Action>, // TODO
+    pub store:  Arc<Mutex<Store<State, Action>>>,
+    pub tx:     Sender<Action>,
+    pub rx:     Arc<Mutex<Receiver<Action>>>,
+    pub thread: JoinHandle<()>,
 }
 
 /// Redux actions, carrying payloads for reducer logic
@@ -32,8 +34,16 @@ pub enum Action {
 /// `initialize_store` creates a new thread, in which it sets up the redux store, etc.
 /// and returns a `sync::mpsc::Sender` from the thread.
 pub fn initialize_store() -> StoreHandle {
-    let store = Store::new(reducer, State::default());
-    StoreHandle { store }
+    let store = Arc::new(Mutex::new(Store::new(reducer, State::default())));
+    let (tx, rx) = channel::<Action>();
+    let rx = Arc::new(Mutex::new(rx));
+    let thread = spawn_thread(Arc::clone(&rx), Arc::clone(&store));
+    StoreHandle {
+        store,
+        tx,
+        rx,
+        thread,
+    }
 }
 
 fn spawn_thread(
