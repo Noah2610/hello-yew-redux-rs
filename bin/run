@@ -1,0 +1,19 @@
+#!/bin/bash
+
+function check_avail {
+  command -v "$1" &> /dev/null || {
+    (1>&1 echo "'$1' is not available. Exiting.")
+    exit 1
+  }
+}
+
+ROOT="$( cd $( dirname $0 )/..; pwd )"
+
+check_avail "cargo-web"
+check_avail "cargo-watch"
+
+cargo watch -c \
+  -x "web start --port 8080" \
+  -w "$ROOT/src" \
+  -w "$ROOT/Cargo.toml" \
+  -w "$ROOT/bin/run"

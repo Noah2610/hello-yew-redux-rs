@@ -1,0 +1,8 @@
+[package]
+name = "hello_yew"
+version = "0.1.0"
+authors = ["Noah Rosenzweig <rosenzweig.noah@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+yew = { version = "0.7.0", git = "https://github.com/DenisKolodin/yew" }
